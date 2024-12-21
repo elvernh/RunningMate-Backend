@@ -15,10 +15,12 @@ datasource db {
 
 model User {
   user_id      Int               @id @default(autoincrement())
-  username     String
-  password     String
-  level        Int
-  expBar       Int
+  username     String            @db.VarChar(100)
+  email        String            @unique @db.VarChar(150)
+  password     String            @db.VarChar(100)
+  token        String?           @db.VarChar(100)
+  level        Int               @default(1)
+  expBar       Int               @default(100)
   achievements UserAchievement[]
   notifactions Notification[]
   runs         Run[]
