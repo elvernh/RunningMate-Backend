@@ -12,3 +12,112 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+model User {
+  user_id      Int               @id @default(autoincrement())
+  username     String
+  password     String
+  level        Int
+  expBar       Int
+  achievements UserAchievement[]
+  notifactions Notification[]
+  runs         Run[]
+  challenges   UserChallenge[]
+  friendLists  Friendlist[]
+  histories    History[]
+
+  @@map("users")
+}
+
+model Achievement {
+  achievement_id Int                       @id @default(autoincrement())
+  name           String
+  description    String
+  image          String
+  users          UserAchievement[]
+  notifications  NotificationAchievement[]
+}
+
+model UserAchievement {
+  user_achievement_id Int         @id @default(autoincrement())
+  user_id             Int
+  achievement_id      Int
+  user                User        @relation(fields: [user_id], references: [user_id])
+  achievement         Achievement @relation(fields: [achievement_id], references: [achievement_id])
+}
+
+model Notification {
+  notification_id Int                       @id @default(autoincrement())
+  user_id         Int
+  date            DateTime
+  user            User                      @relation(fields: [user_id], references: [user_id])
+  achievements    NotificationAchievement[]
+  friendlists     NotificationFriendlist[]
+}
+
+model NotificationAchievement {
+  notification_achievement_id Int          @id @default(autoincrement())
+  notification_id             Int
+  achievement_id              Int
+  notification                Notification @relation(fields: [notification_id], references: [notification_id])
+  achievement                 Achievement  @relation(fields: [achievement_id], references: [achievement_id])
+}
+
+model NotificationFriendlist {
+  notification_friend_id Int          @id @default(autoincrement())
+  notification_id        Int
+  friendlist_id          Int
+  notification           Notification @relation(fields: [notification_id], references: [notification_id])
+  friendlist             Friendlist   @relation(fields: [friendlist_id], references: [friendlist_id])
+}
+
+model Friendlist {
+  friendlist_id Int                      @id @default(autoincrement())
+  user_id       Int
+  userfriend_id Int
+  status        String
+  user          User                     @relation(fields: [user_id], references: [user_id])
+  notifications NotificationFriendlist[]
+}
+
+model Challenge {
+  id          Int             @id @default(autoincrement())
+  name        String
+  description String
+  runs        Run[]
+  users       UserChallenge[]
+}
+
+model UserChallenge {
+  id           Int       @id @default(autoincrement())
+  user_id      Int
+  challenge_id Int
+  user         User      @relation(fields: [user_id], references: [user_id])
+  challenge    Challenge @relation(fields: [challenge_id], references: [id])
+}
+
+model Run {
+  run_id            Int        @id @default(autoincrement())
+  user_id           Int
+  start_time        DateTime
+  progress_distance Float
+  progress_duration Float
+  location          String
+  challenge_id      Int?
+  user              User       @relation(fields: [user_id], references: [user_id])
+  challenge         Challenge? @relation(fields: [challenge_id], references: [id])
+  histories         History[]
+}
+
+model History {
+  history_id  Int      @id @default(autoincrement())
+  user_id     Int
+  distance    Float
+  duration    Float
+  achievement Int?
+  date        DateTime
+  calorie     Float
+  run_id      Int
+  user        User     @relation(fields: [user_id], references: [user_id])
+  run         Run      @relation(fields: [run_id], references: [run_id])
+}
